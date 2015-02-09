@@ -1,10 +1,10 @@
 var num_of_resources, num_of_activities,
     cons_weighted_score,
-    multiplier,sum,
+    multiplier=0,sum=0,
     resource_estimated_no = 2,
     activity_estimated_no = 5,
     expected = 0,
-	student,
+	student=0,
     student1 = 0,
     student2 = 0;
     var basket=0;
@@ -29,31 +29,34 @@ $(document).ready(function(){
 	function tree1(student,num){
 		if(student<=100){
                 basket=0;
-				basket1=basket;
-				basket2=basket;
                  document.getElementById("container"+num).innerHTML = "<img src=' "+ Math.round(student) +".png'>";
             }else{                              
                 basket = parseInt((student - 80) / 20);
-				basket1=basket;
-				basket2=basket;
                 console.log('basket1 :'+ basket1);
                 console.log('basket2 :'+ basket2);
                 document.getElementById("container"+num).innerHTML = "<img src=' "+ Math.round(80 +( student % 20)) +".png'>";      
             }
+			basket1=basket;	basket2=basket;
 			}
 	
 		//function to hide or show the baskets
     function Basket(basket,v){
         if(basket<=0){                
-				$('#basket'+v +' .e_basket1, .e_basket2, .e_basket3, .sum_of_basket').hide();
+				$('#basket'+v +' .e_basket1').hide();
+				$('#basket'+v +' .e_basket2').hide();
+				$('#basket'+v +' .e_basket3').hide();
+				$('#basket'+v +' .sum_of_basket').hide();
         }else{
             if(basket==1){
                 $('#basket'+v +' .e_basket1').show();
-                $('#basket'+v +' .e_basket2, .e_basket3, .sum_of_basket').hide();
+                $('#basket'+v +' .e_basket2').hide();
+                $('#basket'+v +' .e_basket3').hide();
+                $('#basket'+v +' .sum_of_basket').hide();
             }else if(basket==2){
                 $('#basket'+v +' .e_basket1').show();
                 $('#basket'+v +' .e_basket2').show();                    
-                $('#basket'+v +' .e_basket3, .sum_of_basket').hide();
+                $('#basket'+v +' .e_basket3').hide();
+                $('#basket'+v +' .sum_of_basket').hide();
             }else if(basket==3){
                 $('#basket'+v +' .e_basket1').show();
                 $('#basket'+v +' .e_basket2').show();
@@ -70,13 +73,15 @@ $(document).ready(function(){
             }
         }
     }
-
+	
+	//function for calculating promptness, normalised score & login bonus of main
 	function mainScore(){
 			$('#main_score span:first').html( Math.round((expected - 4)/multiplier));
             $('#main_score span:eq(1)').html(Math.round((expected-4)*100)/100);
             $('#main_score span:eq(2)').html(Math.round(expected*100 )/100);
 	}
 	
+	//function for calculating promptness, normalised score & login bonus of student1 & student2
 	function studentScore(student,value,num){
 				if((Math.round((Math.round(student) - value)/multiplier))<0){
                      $('#student'+num+'_score span:first').html(0);
@@ -95,6 +100,7 @@ $(document).ready(function(){
                 }
             }
 	
+	//function for calculation of login scores
 	function login(value,num,nxt){
 			if(value==4){
                 student = ((multiplier*cons_weighted_score)/20);
@@ -120,8 +126,8 @@ $(document).ready(function(){
 			student1=student; student2=student;
 			}	
 		
-		function select(num){
-			var value = $('.right'+num+' .loginday').val();
+		//function for calculation of particular type selection
+		function select(value,num){
 			if(value==4){
                 student = ((multiplier*cons_weighted_score)/20);
             }else if(value==3){
@@ -165,14 +171,11 @@ $(document).ready(function(){
     $('body').on('click','#go',function(){       
         num_of_resources = $('#resources').val();
         num_of_activities = $('#activities').val();      
-        num_of_discussion = $('#discussions').val();      
-        $('#wrapper').hide();
-        if(num_of_activities && num_of_resources){ 
+        num_of_discussion = $('#discussions').val(); 
+		if((num_of_resources>=0) && (num_of_activities>=0) && (num_of_discussion>=0)){
+        $('#wrapper').hide(); 
             $('#go').hide();  
             $('#wrapper').show();
-            $('#no_of_resources').text(num_of_resources);
-            $('#no_of_activities').text(num_of_activities);
-            $('#no_of_discussions').text(num_of_discussion);
             $('#weighted_score_resources').text('2 X '+num_of_resources+' = '+2*num_of_resources);
             $('#weighted_score_activities').text('5 X '+num_of_activities+' = '+5*num_of_activities);
             $('#weighted_score_discussions').text('5 X '+num_of_discussion+' = '+5*num_of_discussion);
@@ -180,7 +183,7 @@ $(document).ready(function(){
             $('#weighted_score').text(sum);
 
             cons_weighted_score = sum * 75 / 100;
-            $('#cons_weighted_score').text(cons_weighted_score); //+' ( 75% of ('+2*num_of_resources+' + '+ 5*num_of_activities+'))'
+            $('#cons_weighted_score').text(cons_weighted_score);
             $('#multiplier').text(Math.round((80/cons_weighted_score)*100)/100);
 
             multiplier = 80/cons_weighted_score;
@@ -193,7 +196,6 @@ $(document).ready(function(){
             $('#student2_score span:first').html(0);
             $('#student2_score span:eq(1)').html(0);
             $('#student2_score span:eq(2)').html(0);
-        }
 
 			treeMain();	//calling function for left class's tree image
             tree1(student1,1);	//calling function for right1 class's tree image
@@ -201,7 +203,8 @@ $(document).ready(function(){
             Basket(basket,'');	
             Basket(basket2,2);
             Basket(basket1,1);
-
+		}
+		else{alert("enter positive number");}
     });
 
 	
@@ -317,23 +320,24 @@ $(document).ready(function(){
 // particular type
     $('body').on("change",".submission,.viewed",function(){
         if($(this).parent().hasClass('right1')){         
-           var value;
-		   select(1);
+           var val = $('.right1 .loginday').val();
+		   select(val,1);
 			
 		   console.log(student1);        
             tree1(student1,1);
             Basket(basket1,1);
-            $('#student1_score span:first').html(Math.round((Math.round(student1) - value)/multiplier));
-            $('#student1_score span:eq(1)').html(Math.round((Math.round(student1)-value)*100)/100);
+            $('#student1_score span:first').html(Math.round((Math.round(student1) - val)/multiplier));
+            $('#student1_score span:eq(1)').html(Math.round((Math.round(student1)-val)*100)/100);
             $('#student1_score span:eq(2)').html(Math.round(student1*100 )/100);
         }else{
-           select(2);
+		   var val = $('.right2 .loginday').val();
+           select(val,2);
 
 			tree1(student2,2);
 			console.log(student2);   
             Basket(basket2,2);
-            $('#student2_score span:first').html(Math.round((Math.round(student2) - value)/multiplier));
-            $('#student2_score span:eq(1)').html(Math.round((Math.round(student2)-value)*100)/100);
+            $('#student2_score span:first').html(Math.round((Math.round(student2) - val)/multiplier));
+            $('#student2_score span:eq(1)').html(Math.round((Math.round(student2)-val)*100)/100);
             $('#student2_score span:eq(2)').html(Math.round(student2*100 )/100);
         }
         $(this).next().html($(this).val());
