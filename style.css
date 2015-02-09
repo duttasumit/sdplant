@@ -32,7 +32,7 @@ select {
 	top: 14px;
     font-size: 18px;
 }
-.left, .middle, .right {
+.left, .right1, .right2 {
 	width: 32%;
 	height: 45px;
 	float: left;
@@ -48,6 +48,7 @@ select {
 	padding-left: 11px;
 	font-family: arial;
 	font-size: 12px;
+
 }
 #main_score, .student_first, .student_second {
 	width: 20%;
@@ -55,7 +56,7 @@ select {
     float: left;
     margin: 4px 74px;
 }
-.middle, .right, .left {
+.right1, .right2, .left {
 	position: relative;
 }
 h3 {
@@ -163,7 +164,7 @@ table {
 	table-layout: fixed;
 }
 
-#container_middle, #container_right, #container_left {
+#container1, #container2, #container_left {
     height: 410px;
     width: 100%;
 /*	text-align: center;
@@ -181,7 +182,7 @@ table {
     width: 30%;
     padding: 0 10px;
 }
-#container_left > img, #container_middle > img, #container_right > img {
+#container_left > img, #container1 > img, #container2 > img {
     bottom: 0;
     left: 0px;
     position: absolute;
