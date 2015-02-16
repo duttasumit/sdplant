@@ -1,9 +1,6 @@
-var num_of_resources, num_of_activities, cons_weighted_score, multiplier,
-    resource_estimated_no = 2, activity_estimated_no = 5,
-    expected = 0, student1 = 0, student2 = 0;
-    var basket=0; var basket0=0; var basket1 = 0; var basket2 = 0;
-  
-  
+var cons_weighted_score, multiplier,
+student0 = 0, student1 = 0, student2 = 0;
+       
 $(document).ready(function(){  
 	
 	//function to show the tree image(size depends on value of student)
@@ -52,15 +49,15 @@ $(document).ready(function(){
 	}
 	
 	function studentScore(student,val,num){
-			if((Math.round((Math.round(student) - val)/multiplier))<0){
+			if((Math.round((student - val)/multiplier))<0){
                      $('#student'+num+'_score span:first').html(0);
                 }else{
-                    $('#student'+num+'_score span:first').html(Math.round((Math.round(student) - val)/multiplier));
+                    $('#student'+num+'_score span:first').html(Math.round((student - val)/multiplier));
                 }                   
-                if((Math.round((Math.round(student)-val)*100)/100)<0){
+                if((Math.round((student-val)*100)/100)<0){
                      $('#student'+num+'_score span:eq(1)').html(0);
                 }else{
-                    $('#student'+num+'_score span:eq(1)').html(Math.round((Math.round(student)-val)*100)/100);
+                    $('#student'+num+'_score span:eq(1)').html(Math.round((student-val)*100)/100);
                 }
                 if((Math.round(student*100 )/100)<0){
                      $('#student'+num+'_score span:eq(2)').html(0);
@@ -80,16 +77,9 @@ $(document).ready(function(){
             }else{
                 student = 0;
             }
-            $('.right'+num+' .submission:not(:first)').each(function(){
-            if(isFinite($(this).val())){
-                student += $(this).val()*multiplier;
-            }                   
-            });
-            $('.right'+num+' .viewed:not(:first)').each(function(){
-                if(isFinite($(this).val())){
-                    student += $(this).val()*multiplier;
-                }
-            });
+			$('.right'+num+' .submission:not(:first), .right'+num+' .viewed:not(:first)').each(function(){
+					student += $(this).val()*multiplier;
+			});
 			console.log('student(login) : '+student);
 	}
 	
@@ -104,10 +94,12 @@ $(document).ready(function(){
          }
     });
     
-    $('body').on('click','#go',function(){       
-        num_of_resources = $('#resources').val();
-        num_of_activities = $('#activities').val();      
-        num_of_discussion = $('#discussions').val();      
+	//initial work(getting values)
+    $('body').on('click','#go',function(){
+		var basket=0, basket0=0, basket1 = 0, basket2 = 0; 
+        var num_of_resources = $('#resources').val();
+        var num_of_activities = $('#activities').val();      
+        var num_of_discussion = $('#discussions').val();      
         $('#wrapper').hide();
         if((num_of_activities>=0) && (num_of_resources>=0) && (num_of_discussion>=0)){ 
             $('#go').hide();  
@@ -126,12 +118,8 @@ $(document).ready(function(){
             student0 = (multiplier*cons_weighted_score)/20;
             console.log('student0 : '+student0);    
             mainScore();
-            $('#student1_score span:first').html(0);
-            $('#student1_score span:eq(1)').html(0);
-            $('#student1_score span:eq(2)').html(0);
-            $('#student2_score span:first').html(0);
-            $('#student2_score span:eq(1)').html(0);
-            $('#student2_score span:eq(2)').html(0);
+            $('#student1_score .span, .span1, .span2 ').html(0);
+            $('#student2_score .span, .span1, .span2').html(0);
         }else{ alert("please enter positive values");}
 
 			tree(student0,0); basket0=basket;
@@ -150,12 +138,10 @@ $(document).ready(function(){
 // delete particular
     $('body').on("click","#delete:visible",function(){       
         $(this).parent().parent().find('select:visible').each(function(){               
-            if($(this).val()=='activity'){
+            if(($(this).val()=='activity') || ($(this).val()=='discussion')){
                 student0 -= 5*multiplier;
             }else if($(this).val()=='resource'){
                 student0 -= 2*multiplier;
-            }else if($(this).val()=='discussion'){
-                student0 -= 5*multiplier;
             }else if($(this).parent().hasClass('right1')){
                 student1 -= $(this).val()*multiplier;
 				var value=$(this).val();
@@ -207,38 +193,13 @@ $(document).ready(function(){
             Basket(basket0,'');
             mainScore();
     });
-
-//login time
-    $('body').on("change",".loginday",function(){
-        if($(this).parent().hasClass('right1')){
-            var value=$(this).val();
-			login(value,1);
-			student1=student;
-            console.log('student1 : '+student1);
-            tree(student1,1);
-			basket1=basket;
-            Basket(basket1,1);
-			st_Score(student1,value,1);
-        }else if($(this).parent().hasClass('right2')){
-            var value=$(this).val();
-			login(value,2);
-			student2=student;
-            console.log('student2 : '+student2);
-            tree(student2,2);
-			basket2=basket;
-            Basket(basket2,2);
-			st_Score(student2,value,2);
-        }
-		$(this).next().html($(this).val());
-    });    
-
-// particular type
-    $('body').on("change",".submission,.viewed",function(){
+   
+// login type and particular type
+    $('body').on("change",".loginday, .submission,.viewed",function(){
         if($(this).parent().hasClass('right1')){         
 			var value = $('.right1 .loginday').val();
 			login(value,1);          
-			student1=student;
-			console.log(student1);        
+			student1=student;       
 			tree(student1,1);
 			basket1=basket;
 			Basket(basket1,1);
@@ -247,7 +208,6 @@ $(document).ready(function(){
            var value = $('.right2 .loginday').val();
             login(value,2);
 			student2=student;
-			console.log(student2);
             tree(student2,2);
 			basket2=basket;               
             Basket(basket2,2);
