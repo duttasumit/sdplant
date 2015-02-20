@@ -1,8 +1,12 @@
 $(document).ready(function(){
     var cons_weighted_score, multiplier, student0 = 0, student1 = 0, student2 = 0;
-    var students=[], baskets=[];
-    const res=2,act=5, disc=5;
-
+    var students=[], baskets=[], resources;
+    var items=[
+                resources   = { weight : 2, Count : 0}, 
+                activities  = { weight : 5, Count : 0}, 
+                discussions = { weight : 5, Count : 0} 
+            ];
+    
     //function to show the tree image(size depends on value of student)
     function tree(student,num){
         basket= student<=100 ? 0: parseInt((student - 80) / 20);
@@ -68,43 +72,37 @@ $(document).ready(function(){
             students[0] += num*multiplier;
             nxt.html(''+num+'');
     }
-
-    $('table tr:first-child').click(function(){
+  
+   $('table tr:first-child').click(function(){
         $(this).siblings().toggle();
     });
     $('#go').hide();
     $('#activities, #resources, #discussions').on('input',function(){
          if($('#activities').val() && $('#resources').val() && $('#discussions').val()){
             $('#go').show();
-        }
-    });
-    
+    }});
+  
     //initial work(getting values)
     $('body').on('click','#go',function(){
-        var basket=0; 
-        var num_of_resources = $('#resources').val();
-        var num_of_activities = $('#activities').val();
-        var num_of_discussion = $('#discussions').val();      
-        $('#wrapper').hide();
-        if((num_of_activities>=0) && (num_of_resources>=0) && (num_of_discussion>=0)){ 
+    var basket=0;
+    $('#wrapper').hide();
+    items[0].Count=$('#resources').val(), items[1].Count=$('#activities').val(), items[2].Count=$('#discussions').val();
+    if((items[0].Count>=0) && (items[1].Count>=0) && (items[2].Count>=0)){ 
             $('#go').hide();  
             $('#wrapper').show();
-            $('#weighted_score_resources').text(''+res+' X '+num_of_resources+' = '+res*num_of_resources);
-            $('#weighted_score_activities').text(''+act+' X '+num_of_activities+' = '+act*num_of_activities);
-            $('#weighted_score_discussions').text(''+disc+' X '+num_of_discussion+' = '+disc*num_of_discussion);
-            cons_weighted_score = (res*num_of_resources)+(act*num_of_activities)+(disc*num_of_discussion);
-            $('#weighted_score').text(cons_weighted_score);
-            cons_weighted_score = cons_weighted_score * 75 / 100;
-            $('#cons_weighted_score').text(cons_weighted_score); 
-            $('#multiplier').text(Math.round((80/cons_weighted_score)*100)/100);
-            multiplier = 80/cons_weighted_score;
-            student0 = (multiplier*cons_weighted_score)/20;
-            students.push(student0);
+            for(var col=0; col<=2; col++){
+            $('#weighted_score_column'+col+'').text(''+items[col].weight+' X '+items[col].Count+' = '+(items[col].weight)*(items[col].Count));    
+            }
+            weighted_score = (items[0].weight)*(items[0].Count) + (items[1].weight)*(items[1].Count) + (items[2].weight)*(items[2].Count);
+            $('#weighted_score').text(weighted_score);
+            $('#cons_weighted_score').text(cons_weighted_score = weighted_score * 75 / 100); 
+            $('#multiplier').text(Math.round((multiplier = 80/cons_weighted_score)*100)/100);
+            students.push(student0 = (multiplier*cons_weighted_score)/20);
             mainScore();
             $('#student1_score .span, .span1, .span2 ').html(0);
             $('#student2_score .span, .span1, .span2').html(0);
         }else{ alert("please enter positive values");}
-            students.push(student1);students.push(student2);			
+            students.push(student1);    students.push(student2);			
             for(var pos=0; pos<students.length; pos++){
                 tree(students[pos],pos);				
                 baskets[pos]=basket;
@@ -118,11 +116,13 @@ $(document).ready(function(){
     // delete particular
     $('body').on("click","#delete:visible",function(){     
         $(this).parent().parent().find('select:visible').each(function(){
-            var value=$(this).val();		
-            if(($(this).val()=='activity') || ($(this).val()=='discussion')){
-                students[0] -= act*multiplier;
+            var value=$(this).val();	
+            if($(this).val()=='activity'){
+                students[0] -= items[1].weight*multiplier;
+            }else if($(this).val()=='discussion'){
+                students[0] -= items[2].weight*multiplier;
             }else if($(this).val()=='resource'){
-                students[0] -= res*multiplier;
+                students[0] -= items[0].weight*multiplier;
             }else{ ($(this).parent().attr("class")=="right1")?number=1:number=2;
                 students[number]-=value*multiplier;
                 studentScore(students[number],value,number);}
@@ -138,13 +138,17 @@ $(document).ready(function(){
 
     // particular select
     $('body').on("change",".selected_particular",function(){
-            var next=$(this).next();
-            if($(this).val()=='activity' || $(this).val()=='discussion'){            
-            part_sel(act,next);
+        var next=$(this).next();
+        if($(this).val()=='activity'){            
+            part_sel(items[1].weight,next);
+            $(this).parent().siblings('.right1, .right2').find('[name="submission"]').show();
+            $(this).prop('disabled', true);
+        }else if($(this).val()=='discussion'){            
+            part_sel(items[2].weight,next);
             $(this).parent().siblings('.right1, .right2').find('[name="submission"]').show();
             $(this).prop('disabled', true);
         }else if($(this).val()=='resource'){
-            part_sel(res,next);
+            part_sel(items[0].weight,next);
             $(this).parent().siblings('.right1, .right2').find('[name="viewed"]').show();
             $(this).prop('disabled', true);
         }else if($(this).val()=='new_week'){
