@@ -2,9 +2,9 @@ $(document).ready(function(){
     var cons_weighted_score, multiplier, student0 = 0, student1 = 0, student2 = 0;
     var students=[], baskets=[], resources;
     var items=[
-                resources   = { weight : 2, Count : 0}, 
-                activities  = { weight : 5, Count : 0}, 
-                discussions = { weight : 5, Count : 0} 
+                resources   = { weight : 2, Count : 0 , name : 'resource'}, 
+                activities  = { weight : 5, Count : 0 , name : 'activity'}, 
+                discussions = { weight : 5, Count : 0 , name : 'discussion'} 
             ];
     
     //function to show the tree image(size depends on value of student)
@@ -115,16 +115,15 @@ $(document).ready(function(){
 
     // delete particular
     $('body').on("click","#delete:visible",function(){     
-        $(this).parent().parent().find('select:visible').each(function(){
-            var value=$(this).val();	
-            if($(this).val()=='activity'){
-                students[0] -= items[1].weight*multiplier;
-            }else if($(this).val()=='discussion'){
-                students[0] -= items[2].weight*multiplier;
-            }else if($(this).val()=='resource'){
-                students[0] -= items[0].weight*multiplier;
-            }else{ ($(this).parent().attr("class")=="right1")?number=1:number=2;
-                students[number]-=value*multiplier;
+        $(this).parent().parent().find('select:visible').each(function(){	
+            if($(this).parent().attr("class")=="left"){
+                for(var x=0; x<=2; x++){
+                    if($(this).val()==items[x].name){
+                        students[0] -= items[x].weight*multiplier;
+                }}
+           }else{ ($(this).parent().attr("class")=="right1")?number=1:number=2;
+                var value=$(this).val();
+               students[number]-=value*multiplier;
                 studentScore(students[number],value,number);}
             });
                 for(var pos=0; pos<students.length;pos++){
