@@ -40,7 +40,7 @@ $(document).ready(function(){
     }
 
     function studentScore(student,val,num){
-            var round=student - val,
+            var round=student - val;
             span=[$('#student'+num+'_score span:eq(0)'),$('#student'+num+'_score span:eq(1)'),$('#student'+num+'_score span:eq(2)')];
             ((Math.round(round/multiplier))<0) ? span[0].html(0) : span[0].html(Math.round(round/multiplier));
             ((Math.round(round*100)/100)<0) ? span[1].html(0) : span[1].html((Math.round(round*100)/100));
@@ -117,13 +117,13 @@ $(document).ready(function(){
     $('body').on("click","#delete:visible",function(){     
         $(this).parent().parent().find('select:visible').each(function(){	
             if($(this).parent().attr("class")=="left"){
-                for(var x=0; x<=2; x++){
+                for(var x=0; x<items.length; x++){
                     if($(this).val()==items[x].name){
                         students[0] -= items[x].weight*multiplier;
                 }}
            }else{ ($(this).parent().attr("class")=="right1")?number=1:number=2;
                 var value=$(this).val();
-               students[number]-=value*multiplier;
+                students[number]-=value*multiplier;
                 studentScore(students[number],value,number);}
             });
                 for(var pos=0; pos<students.length;pos++){
